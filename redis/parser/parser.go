@@ -22,7 +22,7 @@ type Payload struct {
 
 func ParseStream(reader io.Reader) <-chan *Payload {
 	ch := make(chan *Payload)
-
+	go parse0(reader, ch)
 	return ch
 }
 
