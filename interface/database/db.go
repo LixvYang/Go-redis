@@ -9,3 +9,10 @@ type DB interface {
 	AfterClientClose(c redis.Connection)
 	Close()
 }
+
+
+
+// DataEntity stores data bound to a key, including a string, list, hash, set and so on
+type DataEntity struct {
+	Data interface{}
+}
