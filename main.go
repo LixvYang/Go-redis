@@ -3,6 +3,7 @@ package main
 import (
 	"Go-redis/config"
 	"Go-redis/lib/logger"
+	RedisServer "Go-redis/redis/server"
 	"Go-redis/tcp"
 	"fmt"
 	"os"

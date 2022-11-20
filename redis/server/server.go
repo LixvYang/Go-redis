@@ -29,9 +29,9 @@ type Handler struct {
 	closing    atomic.Boolean
 }
 
-func MakeHandle() *Handler {
+func MakeHandler() *Handler {
 	var db database.DB
-	db = database2.NewStandaloneServer()
+	db = database2.NewStandloneServer()
 	return &Handler{
 		db: db,
 	}
@@ -91,4 +91,18 @@ func (h *Handler) Handle(ctx context.Context, conn net.Conn) {
 		}
 	}
 
+}
+
+// Close stops handler
+func (h *Handler) Close() error {
+	logger.Info("handler shutting down...")
+	h.closing.Set(true)
+	// TODO: concurrent wait
+	h.activeConn.Range(func(key interface{}, val interface{}) bool {
+		client := key.(*connection.Connection)
+		_ = client.Close()
+		return true
+	})
+	h.db.Close()
+	return nil
 }
