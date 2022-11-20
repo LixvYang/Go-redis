@@ -20,7 +20,7 @@ const (
 
 // DB stores data and execute user's commands
 type DB struct {
-	index uint
+	index int
 	// key -> DataEntity
 	data dict.Dict
 	// key -> expireTime (time.Time)
@@ -50,6 +50,19 @@ func makeDB() *DB {
 		locker:     lock.Make(lockerSize),
 		addAof:     func(line CmdLine) {},
 	}
+}
+
+// makeBasicDB create DB instance only with basic abilities.
+// It is not concurrent safe
+func makeBasicDB() *DB {
+	db := &DB{
+		data:       dict.MakeSimple(),
+		ttlMap:     dict.MakeSimple(),
+		versionMap: dict.MakeSimple(),
+		locker:     lock.Make(1),
+		addAof:     func(line CmdLine) {},
+	}
+	return db
 }
 
 func (db *DB) Exec(c redis.Connection, cmdLine [][]byte) redis.Reply {

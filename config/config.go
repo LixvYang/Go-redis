@@ -11,9 +11,13 @@ import (
 )
 
 type ServerProperties struct {
-	Bind       string `cfg:"bind"`
-	Port       int    `cfg:"port"`
-	MaxClients int    `cfg:"maxclients"`
+	Bind           string `cfg:"bind"`
+	Port           int    `cfg:"port"`
+	AppendOnly     bool   `cfg:"appendonly"`
+	AppendFilename string `cfg:"appendfilename"`
+	MaxClients     int    `cfg:"maxclients"`
+	RequirePass    string `cfg:"requirepass"`
+	Databases      int    `cfg:"databases"`
 }
 
 var Properties *ServerProperties
@@ -21,8 +25,9 @@ var Properties *ServerProperties
 func init() {
 	// default config
 	Properties = &ServerProperties{
-		Bind: "0.0.0.0",
-		Port: 6379,
+		Bind:       "0.0.0.0",
+		Port:       6379,
+		AppendOnly: false,
 	}
 }
 
