@@ -31,7 +31,7 @@ type Handler struct {
 
 func MakeHandler() *Handler {
 	var db database.DB
-	db = database2.NewStandloneServer()
+	db = database2.NewStandaloneServer()
 	return &Handler{
 		db: db,
 	}

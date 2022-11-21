@@ -26,6 +26,24 @@ func execKeys(db *DB, args [][]byte) redis.Reply {
 	return protocol.MakeMultiBulkReply(result)
 }
 
+func toTTLCmd(db *DB, key string) *protocol.MultiBulkReply {
+	raw, exists := db.ttlMap.Get(key)
+	if !exists {
+		// has no TTL
+		return protocol.MakeMultiBulkReply(utils.ToCmdLine("PERSIST", key))
+	}
+	expireTime, _ := raw.(time.Time)
+	timestamp := strconv.FormatInt(expireTime.UnixNano()/1000/1000, 10)
+	return protocol.MakeMultiBulkReply(utils.ToCmdLine("PEXPIREAT", key, timestamp))
+}
+
+func undoExpire(db *DB, args [][]byte) []CmdLine {
+	key := string(args[0])
+	return []CmdLine{
+		toTTLCmd(db, key).Args,
+	}
+}
+
 // execCopy usage: COPY source destination [DB destination-db] [REPLACE]
 // This command copies the value stored at the source key to the destination key.
 func execCopy(mdb *MultiDB, conn redis.Connection, args [][]byte) redis.Reply {

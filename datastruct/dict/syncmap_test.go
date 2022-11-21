@@ -8,8 +8,8 @@ import (
 	"testing"
 )
 
-func TestConcurrentPut(t *testing.T) {
-	d := MakeConcurrent(0)
+func TestSyncMapPut(t *testing.T) {
+	d := MakeSync()
 	count := 100
 	var wg sync.WaitGroup
 	wg.Add(count)
@@ -37,53 +37,53 @@ func TestConcurrentPut(t *testing.T) {
 	wg.Wait()
 }
 
-func TestConcurrentPutIfAbsent(t *testing.T) {
-	d := MakeConcurrent(0)
-	count := 100
-	var wg sync.WaitGroup
-	wg.Add(count)
-	for i := 0; i < count; i++ {
-		go func(i int) {
-			// insert
-			key := "k" + strconv.Itoa(i)
-			ret := d.PutIfAbsent(key, i)
-			if ret != 1 { // insert 1
-				t.Error("put test failed: expected result 1, actual: " + strconv.Itoa(ret) + ", key: " + key)
-			}
-			val, ok := d.Get(key)
-			if ok {
-				intVal, _ := val.(int)
-				if intVal != i {
-					t.Error("put test failed: expected " + strconv.Itoa(i) + ", actual: " + strconv.Itoa(intVal) +
-						", key: " + key)
-				}
-			} else {
-				_, ok := d.Get(key)
-				t.Error("put test failed: expected true, actual: false, key: " + key + ", retry: " + strconv.FormatBool(ok))
-			}
+// func TestSyncPutIfAbsent(t *testing.T) {
+// 	d := MakeSync()
+// 	count := 100
+// 	var wg sync.WaitGroup
+// 	wg.Add(count)
+// 	for i := 0; i < count; i++ {
+// 		go func(i int) {
+// 			// insert
+// 			key := "k" + strconv.Itoa(i)
+// 			ret := d.PutIfAbsent(key, i)
+// 			if ret != 1 { // insert 1
+// 				t.Error("put test failed: expected result 1, actual: " + strconv.Itoa(ret) + ", key: " + key)
+// 			}
+// 			val, ok := d.Get(key)
+// 			if ok {
+// 				intVal, _ := val.(int)
+// 				if intVal != i {
+// 					t.Error("put test failed: expected " + strconv.Itoa(i) + ", actual: " + strconv.Itoa(intVal) +
+// 						", key: " + key)
+// 				}
+// 			} else {
+// 				_, ok := d.Get(key)
+// 				t.Error("put test failed: expected true, actual: false, key: " + key + ", retry: " + strconv.FormatBool(ok))
+// 			}
 
-			// update
-			ret = d.PutIfAbsent(key, i*10)
-			if ret != 0 { // no update
-				t.Error("put test failed: expected result 0, actual: " + strconv.Itoa(ret))
-			}
-			val, ok = d.Get(key)
-			if ok {
-				intVal, _ := val.(int)
-				if intVal != i {
-					t.Error("put test failed: expected " + strconv.Itoa(i) + ", actual: " + strconv.Itoa(intVal) + ", key: " + key)
-				}
-			} else {
-				t.Error("put test failed: expected true, actual: false, key: " + key)
-			}
-			wg.Done()
-		}(i)
-	}
-	wg.Wait()
-}
+// 			// update
+// 			ret = d.PutIfAbsent(key, i*10)
+// 			if ret != 0 { // no update
+// 				t.Error("put test failed: expected result 0, actual: " + strconv.Itoa(ret))
+// 			}
+// 			val, ok = d.Get(key)
+// 			if ok {
+// 				intVal, _ := val.(int)
+// 				if intVal != i {
+// 					t.Error("put test failed: expected " + strconv.Itoa(i) + ", actual: " + strconv.Itoa(intVal) + ", key: " + key)
+// 				}
+// 			} else {
+// 				t.Error("put test failed: expected true, actual: false, key: " + key)
+// 			}
+// 			wg.Done()
+// 		}(i)
+// 	}
+// 	wg.Wait()
+// }
 
-func TestConcurrentPutIfExists(t *testing.T) {
-	d := MakeConcurrent(0)
+func TestSyncPutIfExists(t *testing.T) {
+	d := MakeSync()
 	count := 100
 	var wg sync.WaitGroup
 	wg.Add(count)
@@ -115,8 +115,8 @@ func TestConcurrentPutIfExists(t *testing.T) {
 	wg.Wait()
 }
 
-func TestConcurrentRemove(t *testing.T) {
-	d := MakeConcurrent(0)
+func TestSyncRemove(t *testing.T) {
+	d := MakeSync()
 	totalCount := 100
 	// remove head node
 	for i := 0; i < totalCount; i++ {
@@ -161,7 +161,7 @@ func TestConcurrentRemove(t *testing.T) {
 	}
 
 	// remove tail node
-	d = MakeConcurrent(0)
+	d = MakeSync()
 	for i := 0; i < 100; i++ {
 		// insert
 		key := "k" + strconv.Itoa(i)
@@ -195,7 +195,7 @@ func TestConcurrentRemove(t *testing.T) {
 	}
 
 	// remove middle node
-	d = MakeConcurrent(0)
+	d = MakeSync()
 	d.Put("head", 0)
 	for i := 0; i < 10; i++ {
 		// insert
@@ -231,8 +231,8 @@ func TestConcurrentRemove(t *testing.T) {
 	}
 }
 
-func TestConcurrentRandomKey(t *testing.T) {
-	d := MakeConcurrent(0)
+func TestSyncRandomKey(t *testing.T) {
+	d := MakeSync()
 	count := 100
 	for i := 0; i < count; i++ {
 		key := "k" + strconv.Itoa(i)
@@ -256,7 +256,7 @@ func TestConcurrentRandomKey(t *testing.T) {
 	}
 }
 
-func TestConcurrentDict_Keys(t *testing.T) {
+func TestSyncKeys(t *testing.T) {
 	d := MakeConcurrent(0)
 	size := 1000
 	for i := 0; i < size; i++ {
@@ -267,10 +267,9 @@ func TestConcurrentDict_Keys(t *testing.T) {
 	}
 }
 
-var times int = 10000000
-
-// BenchmarkTestConcurrentMap 测试ConcurrentDictMap
-func BenchmarkTestConcurrentDictMap(b *testing.B) {
+// 1000万次的赋值,1000万次的读取
+// BenchmarkTestConcurrentMap BenchmarkTestSync
+func BenchmarkTestSync(b *testing.B) {
 	for k := 0; k < b.N; k++ {
 		b.StopTimer()
 		// 产生10000个不重复的键值对(string -> int)
@@ -279,7 +278,7 @@ func BenchmarkTestConcurrentDictMap(b *testing.B) {
 			testKV[strconv.Itoa(i)] = i
 		}
 
-		pMap := MakeConcurrent(0)
+		pMap := MakeSync()
 
 		// set到map中
 		for k, v := range testKV {

@@ -33,7 +33,7 @@ type MultiDB struct {
 }
 
 // NewStandaloneServer creates a standalone redis server, with multi database and all other funtions
-func NewStandloneServer() *MultiDB {
+func NewStandaloneServer() *MultiDB {
 	mdb := &MultiDB{}
 	if config.Properties.Databases == 0 {
 		config.Properties.Databases = 16
