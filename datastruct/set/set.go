@@ -7,7 +7,7 @@ type Set struct {
 	dict dict.Dict
 }
 
-func Make(members ...string) *Set {
+func New(members ...string) *Set {
 	set := &Set{
 		dict: dict.MakeSimple(),
 	}
@@ -68,7 +68,7 @@ func (set *Set) Intersect(another *Set) *Set {
 		panic("set is nil")
 	}
 
-	result := Make()
+	result := New()
 	another.ForEach(func(member string) bool {
 		if set.Has(member) {
 			result.Add(member)
@@ -83,7 +83,7 @@ func (set *Set) Union(another *Set) *Set {
 	if set == nil {
 		panic("set is nil")
 	}
-	result := Make()
+	result := New()
 	another.ForEach(func(member string) bool {
 		result.Add(member)
 		return true
@@ -101,7 +101,7 @@ func (set *Set) Diff(another *Set) *Set {
 		panic("set is nil")
 	}
 
-	result := Make()
+	result := New()
 	set.ForEach(func(member string) bool {
 		if !another.Has(member) {
 			result.Add(member)

@@ -59,3 +59,87 @@ func rollbackGivenKeys(db *DB, keys ...string) []CmdLine {
 	}
 	return undoCmdLines
 }
+
+func rollbackHashFields(db *DB, key string, fields ...string) []CmdLine {
+	var undoCmdLines [][][]byte
+	dict, errReply := db.getAsDict(key)
+	if errReply != nil {
+		return nil
+	}
+	if dict == nil {
+		undoCmdLines = append(undoCmdLines,
+			utils.ToCmdLine("DEL", key),
+		)
+		return undoCmdLines
+	}
+	for _, field := range fields {
+		entity, ok := dict.Get(field)
+		if !ok {
+			undoCmdLines = append(undoCmdLines,
+				utils.ToCmdLine("HDEL", key, field),
+			)
+		} else {
+			value, _ := entity.([]byte)
+			undoCmdLines = append(undoCmdLines,
+				utils.ToCmdLine("HSET", key, field, string(value)),
+			)
+		}
+	}
+	return undoCmdLines
+}
+
+func prepareSetCalculate(args [][]byte) ([]string, []string) {
+	keys := make([]string, len(args))
+	for i, arg := range args {
+		keys[i] = string(arg)
+	}
+	return nil, keys
+}
+
+func prepareSetCalculateStore(args [][]byte) ([]string, []string) {
+	dest := string(args[0])
+	keys := make([]string, len(args)-1)
+	keyArgs := args[1:]
+	for i, arg := range keyArgs {
+		keys[i] = string(arg)
+	}
+	return []string{dest}, keys
+}
+
+func rollbackSetMembers(db *DB, key string, members ...string) []CmdLine {
+	var undoCmdLines [][][]byte
+	set, errReply := db.getAsSet(key)
+	if errReply != nil {
+		return nil
+	}
+	if set == nil {
+		undoCmdLines = append(undoCmdLines,
+			utils.ToCmdLine("DEL", key),
+		)
+		return undoCmdLines
+	}
+	for _, member := range members {
+		ok := set.Has(member)
+		if !ok {
+			undoCmdLines = append(undoCmdLines,
+				utils.ToCmdLine("SREM", key, member),
+			)
+		} else {
+			undoCmdLines = append(undoCmdLines,
+				utils.ToCmdLine("SADD", key, member),
+			)
+		}
+	}
+	return undoCmdLines
+}
+
+// undoSetChange rollbacks SADD and SREM command
+func undoSetChange(db *DB, args [][]byte) []CmdLine {
+	key := string(args[0])
+	memberArgs := args[1:]
+	members := make([]string, len(memberArgs))
+	for i, mem := range memberArgs {
+		members[i] = string(mem)
+	}
+	return rollbackSetMembers(db, key, members...)
+}
