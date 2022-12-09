@@ -1,7 +1,6 @@
 package tcp
 
 import (
-	"Go-redis/interface/tcp"
 	"Go-redis/lib/logger"
 	"context"
 	"fmt"
@@ -20,7 +19,7 @@ type Config struct {
 	Timeout    time.Duration `yaml:"timeout"`
 }
 
-func ListenAndServeWithSignal(cfg *Config, handler tcp.Handler) error {
+func ListenAndServeWithSignal(cfg *Config, handler Handler) error {
 	closeChan := make(chan struct{})
 	sigCh := make(chan os.Signal)
 
@@ -45,7 +44,7 @@ func ListenAndServeWithSignal(cfg *Config, handler tcp.Handler) error {
 }
 
 // ListenAndServe binds port and handle requests, blocking until close
-func ListenAndServe(listener net.Listener, handler tcp.Handler, closeChan <-chan struct{}) {
+func ListenAndServe(listener net.Listener, handler Handler, closeChan <-chan struct{}) {
 	// listen signal
 	go func() {
 		<-closeChan

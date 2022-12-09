@@ -3,6 +3,7 @@ package database
 import (
 	"Go-redis/interface/redis"
 	"Go-redis/redis/protocol"
+	"fmt"
 	"strings"
 )
 
@@ -12,6 +13,8 @@ func Watch(db *DB, conn redis.Connection, args [][]byte) redis.Reply {
 
 	for _, bkey := range args {
 		key := string(bkey)
+		fmt.Println(db.GetVersion(key))
+		fmt.Println(db.versionMap.RandomKeys(10))
 		watching[key] = db.GetVersion(key)
 	}
 	return protocol.MakeOkReply()
