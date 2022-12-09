@@ -68,22 +68,23 @@ func makeBasicDB() *DB {
 func (db *DB) Exec(c redis.Connection, cmdLine [][]byte) redis.Reply {
 	// transaction control commands and other commands which cannot execute within transaction
 	cmdName := strings.ToLower(string(cmdLine[0]))
-	if cmdName == "multi" {
+	switch cmdName {
+	case "multi":
 		if len(cmdLine) != 1 {
 			return protocol.MakeArgNumErrReply(cmdName)
 		}
 		return StartMulti(c)
-	} else if cmdName == "discard" {
+	case "discard":
 		if len(cmdLine) != 1 {
 			return protocol.MakeArgNumErrReply(cmdName)
 		}
 		return DiscardMulti(c)
-	} else if cmdName == "exec" {
+	case "exec":
 		if len(cmdLine) != 1 {
 			return protocol.MakeArgNumErrReply(cmdName)
 		}
 		return execMulti(db, c)
-	} else if cmdName == "watch" {
+	case "watch":
 		if !validateArity(-2, cmdLine) {
 			return protocol.MakeArgNumErrReply(cmdName)
 		}

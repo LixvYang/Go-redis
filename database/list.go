@@ -22,6 +22,7 @@ func init() {
 	RegisterCommand("LIndex", execLIndex, readFirstKey, nil, 3, flagReadOnly)
 	RegisterCommand("LSet", execLSet, writeFirstKey, undoLSet, 4, flagWrite)
 	RegisterCommand("LRange", execLRange, readFirstKey, nil, 4, flagReadOnly)
+	// RegisterCommand("LTrim", execLTrim, writeFirstKey, rollbackFirstKey, 4, flagWrite)
 }
 
 func (db *DB) getAsList(key string) (List.List, protocol.ErrorReply) {
@@ -524,4 +525,62 @@ func execRPushX(db *DB, args [][]byte) redis.Reply {
 	db.addAof(utils.ToCmdLine3("rpushx", args...))
 
 	return protocol.MakeIntReply(int64(list.Len()))
+}
+
+// save [start, top] value
+func execLTrim(db *DB, args [][]byte) redis.Reply {
+	if len(args) < 3 {
+		return protocol.MakeErrReply("ERR wrong number of arguments for 'exectrim' command")
+	}
+	key := string(args[0])
+	start64, err := strconv.ParseInt(string(args[1]), 10, 64)
+	if err != nil {
+		return protocol.MakeErrReply("ERR value is not an integer or out of range")
+	}
+	start := int(start64)
+	stop64, err := strconv.ParseInt(string(args[2]), 10, 64)
+	if err != nil {
+		return protocol.MakeErrReply("ERR value is not an integer or out of range")
+	}
+	stop := int(stop64)
+
+	// get data
+	list, errReply := db.getAsList(key)
+	if errReply != nil {
+		return errReply
+	}
+	if list == nil {
+		return &protocol.EmptyMultiBulkReply{}
+	}
+
+	// compute index
+	size := list.Len() // assert: size > 0
+	if start < -1*size {
+		start = 0
+	} else if start < 0 {
+		start = size + start
+	} else if start >= size {
+		return &protocol.EmptyMultiBulkReply{}
+	}
+	if stop < -1*size {
+		stop = 0
+	} else if stop < 0 {
+		stop = size + stop + 1
+	} else if stop < size {
+		stop = stop + 1
+	} else {
+		stop = size
+	}
+	if stop < start {
+		stop = start
+	}
+
+	// assert: start in [0, size - 1], stop in [start, size]
+	for i := 0; i < list.Len(); i++ {
+		if i < start || i > stop {
+			list.Remove(i)
+		}
+		continue
+	}
+	return protocol.MakeOkReply()
 }
