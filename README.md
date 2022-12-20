@@ -6,3 +6,5 @@
 - [x] 配置conf文件 
 - [ ] 实现渐进式Dict
 - [ ] 实现原生Redis Watch命令
+
+Go实现的Redis服务器

@@ -89,31 +89,24 @@ func (mdb *MultiDB) Exec(c redis.Connection, cmdLine [][]byte) (result redis.Rep
 
 	cmdName := strings.ToLower(string(cmdLine[0]))
 	// authenticate
-	if cmdName == "auth" {
-		return Auth(c, cmdLine[1:])
-	}
-	if !isAuthenticated(c) {
-		return protocol.MakeErrReply("NOAUTH Authentication required")
-	}
-
-	// special commands which cannot execute within transaction
-	if cmdName == "subscribe" {
+	switch cmdName {
+	case "subscribe":
 		if len(cmdLine) < 2 {
 			return protocol.MakeArgNumErrReply("subscribe")
 		}
 		return pubsub.Subscribe(mdb.hub, c, cmdLine[1:])
-	} else if cmdName == "publish" {
+	case "publish":
 		return pubsub.Publish(mdb.hub, cmdLine[1:])
-	} else if cmdName == "unsubscribe" {
+	case "unsubscribe":
 		return pubsub.UnSubscribe(mdb.hub, c, cmdLine[1:])
-	} else if cmdName == "bgrewriteaof" {
+	case "bgrewriteaof":
 		// aof.go imports router.go, router.go cannot import BGRewriteAOF from aof.go
 		return BGRewriteAOF(mdb, cmdLine[1:])
-	} else if cmdName == "rewriteaof" {
+	case "rewriteaof":
 		return RewriteAOF(mdb, cmdLine[1:])
-	} else if cmdName == "flushall" {
+	case "flushall":
 		return mdb.flushAll()
-	} else if cmdName == "flushdb" {
+	case "flushdb":
 		if !validateArity(1, cmdLine) {
 			return protocol.MakeArgNumErrReply(cmdName)
 		}
@@ -121,10 +114,11 @@ func (mdb *MultiDB) Exec(c redis.Connection, cmdLine [][]byte) (result redis.Rep
 			return protocol.MakeErrReply("ERR command 'FlushDB' cannot be used in MULTI")
 		}
 		return mdb.flushDB(c.GetDBIndex())
-	} else if cmdName == "save" || cmdName == "bgsave" {
-		fmt.Println("Unsupport rdb save...")
-		return protocol.MakeErrReply("Unsupport rdb save...")
-	} else if cmdName == "select" {
+	case "save":
+		// return SaveRDB(mdb, cmdLine[1:])
+	case "bgsave":
+		// return BGSaveRDB(mdb, cmdLine[1:])
+	case "select":
 		if c != nil && c.InMultiState() {
 			return protocol.MakeErrReply("cannot select database within multi")
 		}
@@ -132,13 +126,18 @@ func (mdb *MultiDB) Exec(c redis.Connection, cmdLine [][]byte) (result redis.Rep
 			return protocol.MakeArgNumErrReply("select")
 		}
 		return execSelect(c, mdb, cmdLine[1:])
-	} else if cmdName == "copy" {
+	case "copy":
 		if len(cmdLine) < 3 {
 			return protocol.MakeArgNumErrReply("copy")
 		}
 		return execCopy(mdb, c, cmdLine[1:])
+	case "replconf":
+		// return mdb.execReplConf(c, cmdLine[1:])
+	case "psync":
+		// return mdb.execPSync(c, cmdLine[1:])
 	}
-	// TODO: support multi database transaction
+	// todo: support multi database transaction
+
 	// normal commands
 
 	dbIndex := c.GetDBIndex()
