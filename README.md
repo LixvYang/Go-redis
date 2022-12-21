@@ -1,4 +1,4 @@
-# Go-redis
+# github.com/lixvyang/Go-redis
 
 - [x] 配置conf文件 
 - [x] 编写Echo接口

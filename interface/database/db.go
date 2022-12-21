@@ -1,8 +1,9 @@
 package database
 
 import (
-	"Go-redis/interface/redis"
 	"time"
+
+	"github.com/lixvyang/Go-redis/interface/redis"
 )
 
 type CmdLine = [][]byte

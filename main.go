@@ -1,12 +1,13 @@
 package main
 
 import (
-	"Go-redis/config"
-	"Go-redis/lib/logger"
-	RedisServer "Go-redis/redis/server"
-	"Go-redis/tcp"
 	"fmt"
 	"os"
+
+	config "github.com/lixvyang/Go-redis/configs"
+	"github.com/lixvyang/Go-redis/internal/logger"
+	RedisServer "github.com/lixvyang/Go-redis/internal/redis/server"
+	"github.com/lixvyang/Go-redis/internal/tcp"
 )
 
 func fileExists(filename string) bool {
@@ -17,14 +18,14 @@ func fileExists(filename string) bool {
 func main() {
 	logger.Setup(&logger.Settings{
 		Path:       "logs",
-		Name:       "go-redis",
+		Name:       "github.com/lixvyang/Go-redis",
 		Ext:        "log",
 		TimeFormat: "2006-01-02",
 	})
 	configFileName := os.Getenv("CONFIG")
 	if configFileName == "" {
-		if fileExists("redis.conf") {
-			config.SetupConfig("redis.conf")
+		if fileExists("configs/redis.conf") {
+			config.SetupConfig("configs/redis.conf")
 		}
 	} else {
 		config.SetupConfig(configFileName)

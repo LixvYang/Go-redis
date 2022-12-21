@@ -1,0 +1,39 @@
+[INFO][server.go:42] 2022/12/21 20:47:30 bid: 0.0.0.0:6370, start listening...
+[INFO][server.go:71] 2022/12/21 20:47:50 accept link
+[INFO][server.go:65] 2022/12/21 20:48:15 connection closed: 127.0.0.1:39160
+[INFO][server.go:71] 2022/12/21 20:48:16 accept link
+[WARN][database.go:86] 2022/12/21 20:48:22 error occur: send on closed channel
+goroutine 103 [running]:
+runtime/debug.Stack()
+	/usr/local/go/src/runtime/debug/stack.go:24 +0x65
+github.com/lixvyang/Go-redis/internal/database.(*MultiDB).Exec.func1()
+	/home/lixin/code/github.com/Go-redis/internal/database/database.go:86 +0x46
+panic({0x5467e0, 0x59ae50})
+	/usr/local/go/src/runtime/panic.go:890 +0x262
+github.com/lixvyang/Go-redis/internal/aof.(*Handler).AddAof(...)
+	/home/lixin/code/github.com/Go-redis/internal/aof/aof.go:67
+github.com/lixvyang/Go-redis/internal/database.NewStandaloneServer.func2({0xc00b700050?, 0x3?, 0x3?})
+	/home/lixin/code/github.com/Go-redis/internal/database/database.go:62 +0xbc
+github.com/lixvyang/Go-redis/internal/database.execSet(0xc00007c050, {0xc00b700018, 0x2, 0x3?})
+	/home/lixin/code/github.com/Go-redis/internal/database/string.go:238 +0x4e3
+github.com/lixvyang/Go-redis/internal/database.(*DB).execNormalCommand(0xc00007c050, {0xc00b700000, 0x3, 0x3})
+	/home/lixin/code/github.com/Go-redis/internal/database/single_db.go:116 +0x302
+github.com/lixvyang/Go-redis/internal/database.(*DB).Exec(0xc00047e027?, {0x59c6b8, 0xc00b604090}, {0xc00b700000?, 0x3, 0x3})
+	/home/lixin/code/github.com/Go-redis/internal/database/single_db.go:97 +0x2e7
+github.com/lixvyang/Go-redis/internal/database.(*MultiDB).Exec(0xc0000b41e0, {0x59c6b8, 0xc00b604090}, {0xc00b700000?, 0x3, 0x3})
+	/home/lixin/code/github.com/Go-redis/internal/database/database.go:149 +0xa45
+github.com/lixvyang/Go-redis/internal/redis/server.(*Handler).Handle(0xc00b602000, {0x0?, 0x0?}, {0x59c310, 0xc0000b0040})
+	/home/lixin/code/github.com/Go-redis/internal/redis/server/server.go:87 +0x1aa
+github.com/lixvyang/Go-redis/internal/tcp.ListenAndServe.func3()
+	/home/lixin/code/github.com/Go-redis/internal/tcp/server.go:77 +0x71
+created by github.com/lixvyang/Go-redis/internal/tcp.ListenAndServe
+	/home/lixin/code/github.com/Go-redis/internal/tcp/server.go:73 +0x197
+
+[INFO][server.go:52] 2022/12/21 20:48:27 shutting down...
+[INFO][server.go:99] 2022/12/21 20:48:27 handler shutting down...
+[INFO][server.go:42] 2022/12/21 20:48:29 bid: 0.0.0.0:6370, start listening...
+[INFO][server.go:71] 2022/12/21 20:48:34 accept link
+[INFO][server.go:65] 2022/12/21 20:51:11 connection closed: 127.0.0.1:42760
+[INFO][server.go:52] 2022/12/21 20:51:28 shutting down...
+[INFO][server.go:99] 2022/12/21 20:51:28 handler shutting down...
+[INFO][server.go:99] 2022/12/21 20:51:28 handler shutting down...
